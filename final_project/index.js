@@ -12,6 +12,21 @@ app.use("/customer",session({secret:"fingerprint_customer",resave: true, saveUni
 
 app.use("/customer/auth/*", function auth(req,res,next){
 //Write the authenication mechanism here
+    if( req.session.authorization ){
+        const token = req.session.authorization['token'];
+        jwt.verify(token, 'MYSECRETSECRETKEY', (err,data)=>{
+            if(!err){
+                req.user = data.user;
+                next();
+            } else {
+                return res.status(403).json({message: 'user not authenticated..!!'})
+            }
+        });
+    } else {
+        return res.status(403).json({message: 'user not logged in ..!!'})
+    }
+
+
 });
  
 const PORT =5000;
